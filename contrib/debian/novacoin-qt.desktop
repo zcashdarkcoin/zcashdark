@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=ZcashDARK
+Comment=ZcashDARK P2P Cryptocurrency
+Comment[fr]=ZcashDARK, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=ZcashDARK, eşten eşe kriptografik sanal para birimi
+Exec=/usr/bin/zcashdark-qt
+Terminal=false
+Type=Application
+Icon=/usr/share/pixmaps/bitcoin80.xpm
+MimeType=x-scheme-handler/zcashdark;
+Categories=Office;

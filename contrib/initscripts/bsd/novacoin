@@ -1,0 +1,68 @@
+#!/bin/sh
+
+# PROVIDE: zcashdark
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+
+#
+# Add the following lines to /etc/rc.conf.local or /etc/rc.conf
+# to enable this service:
+#
+# zcashdark_enable (bool): Set to NO by default. Set this variable to YES if you want to enable zcashdark service.
+# zcashdark_config (path): Set to /usr/local/etc/zcashdark.conf by default.
+# zcashdark_user:  The user account zcashdark daemon runs as. It uses 'root' user by default.
+# zcashdark_group: The group account zcashdark daemon runs as. It uses 'wheel' group by default.
+# zcashdark_datadir (str): Default to "/var/db/zcashdark". Base data directory.
+
+. /etc/rc.subr
+
+name=zcashdark
+rcvar=zcashdark_enable
+
+: ${zcashdark_enable:=NO}
+: ${zcashdark_config=/usr/local/etc/zcashdark.conf}
+: ${zcashdark_datadir=/var/db/zcashdark}
+: ${zcashdark_user="root"}
+: ${zcashdark_group="wheel"}
+
+required_files=${zcashdark_config}
+command=/usr/local/bin/zcashdarkd
+zcashdark_chdir=${zcashdark_datadir}
+pidfile="${zcashdark_datadir}/zcashdarkd.pid"
+stop_cmd=zcashdark_stop
+command_args="-conf=${zcashdark_config} -datadir=${zcashdark_datadir} -noupnp -daemon -pid=${pidfile}"
+start_precmd="${name}_prestart"
+
+zcashdark_create_datadir()
+{
+	echo "Creating data directory"
+	eval mkdir -p ${zcashdark_datadir}
+	[ $? -eq 0 ] && chown -R ${zcashdark_user}:${zcashdark_group} ${zcashdark_datadir}
+}
+
+zcashdark_prestart()
+{
+	if [ ! -d "${zcashdark_datadir}/." ]; then
+		zcashdark_create_datadir || return 1
+	fi
+}
+
+zcashdark_requirepidfile()
+{
+	if [ ! "0`check_pidfile ${pidfile} ${command}`" -gt 1 ]; then
+		echo "${name} not running? (check $pidfile)."
+		exit 1
+	fi
+}
+
+zcashdark_stop()
+{
+    zcashdark_requirepidfile
+
+	echo "Stopping ${name}."
+	eval ${command} -conf=${zcashdark_config} -datadir=${zcashdark_datadir} stop
+	wait_for_pids ${rc_pid}
+}
+
+load_rc_config $name
+run_rc_command "$1"

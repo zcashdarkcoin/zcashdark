@@ -1,0 +1,2 @@
+debian/bin/zcashdarkd usr/bin
+src/zcashdarkd usr/lib/zcashdark
